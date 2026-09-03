@@ -13,8 +13,12 @@ class EnergyInput(BaseModel):
 
 class ActionResult(BaseModel):
     action: str
+    feasible: bool
     score: float
+    baseline_energy_kwh: float
+    optimized_energy_kwh: float
     energy_saving_kwh: float
+    energy_reduction_percent: float
     cost_saving_inr: float
     carbon_reduction_kg: float
     comfort_impact: str

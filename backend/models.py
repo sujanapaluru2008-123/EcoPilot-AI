@@ -30,3 +30,18 @@ class OptimizationResponse(BaseModel):
     recommended_action: str
     confidence: float
     actions: list[ActionResult]
+
+class VerificationInput(BaseModel):
+    baseline_energy_kwh: float = Field(..., gt=0)
+    predicted_energy_kwh: float = Field(..., gt=0)
+    actual_energy_kwh: float = Field(..., gt=0)
+
+
+class VerificationResponse(BaseModel):
+    baseline_energy_kwh: float
+    predicted_energy_kwh: float
+    actual_energy_kwh: float
+    predicted_saving_kwh: float
+    actual_saving_kwh: float
+    actual_reduction_percent: float
+    prediction_error_percent: float

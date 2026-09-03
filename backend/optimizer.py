@@ -521,3 +521,70 @@ def optimize_energy(
     )
 
     return actions
+
+def verify_energy_prediction(
+    baseline_energy_kwh: float,
+    predicted_energy_kwh: float,
+    actual_energy_kwh: float,
+) -> Dict:
+    """
+    Compare EcoPilot's predicted energy impact
+    with the actual measured result.
+    """
+
+    predicted_saving = (
+        baseline_energy_kwh
+        - predicted_energy_kwh
+    )
+
+    actual_saving = (
+        baseline_energy_kwh
+        - actual_energy_kwh
+    )
+
+    actual_reduction_percent = (
+        actual_saving
+        / baseline_energy_kwh
+    ) * 100
+
+    if predicted_saving != 0:
+        prediction_error_percent = (
+            abs(
+                actual_saving
+                - predicted_saving
+            )
+            / abs(predicted_saving)
+        ) * 100
+    else:
+        prediction_error_percent = 0.0
+
+    return {
+        "baseline_energy_kwh": round(
+            baseline_energy_kwh,
+            2,
+        ),
+        "predicted_energy_kwh": round(
+            predicted_energy_kwh,
+            2,
+        ),
+        "actual_energy_kwh": round(
+            actual_energy_kwh,
+            2,
+        ),
+        "predicted_saving_kwh": round(
+            predicted_saving,
+            2,
+        ),
+        "actual_saving_kwh": round(
+            actual_saving,
+            2,
+        ),
+        "actual_reduction_percent": round(
+            actual_reduction_percent,
+            2,
+        ),
+        "prediction_error_percent": round(
+            prediction_error_percent,
+            2,
+        ),
+    }

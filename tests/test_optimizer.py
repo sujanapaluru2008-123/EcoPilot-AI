@@ -1,5 +1,8 @@
 
-from backend.optimizer import optimize_energy
+from backend.optimizer import (
+    optimize_energy,
+    calculate_confidence,
+)
 
 
 def get_test_results():
@@ -155,3 +158,59 @@ def test_energy_reduction_percentage_is_valid():
 
     for result in results:
         assert 0 <= result["energy_reduction_percent"] <= 100
+
+from backend.optimizer import (
+    optimize_energy,
+    verify_energy_prediction,
+)
+
+
+def test_verification_calculates_actual_saving():
+    result = verify_energy_prediction(
+        baseline_energy_kwh=120,
+        predicted_energy_kwh=117,
+        actual_energy_kwh=118,
+    )
+
+    assert result["predicted_saving_kwh"] == 3
+    assert result["actual_saving_kwh"] == 2
+
+
+def test_verification_calculates_actual_reduction():
+    result = verify_energy_prediction(
+        baseline_energy_kwh=120,
+        predicted_energy_kwh=117,
+        actual_energy_kwh=118,
+    )
+
+    assert result["actual_reduction_percent"] == 1.67
+
+
+def test_verification_calculates_prediction_error():
+    result = verify_energy_prediction(
+        baseline_energy_kwh=120,
+        predicted_energy_kwh=117,
+        actual_energy_kwh=118,
+    )
+
+    assert result["prediction_error_percent"] == 33.33
+
+
+def test_perfect_prediction_has_zero_error():
+    result = verify_energy_prediction(
+        baseline_energy_kwh=120,
+        predicted_energy_kwh=117,
+        actual_energy_kwh=117,
+    )
+
+    assert result["prediction_error_percent"] == 0.0
+
+
+def test_verification_preserves_baseline():
+    result = verify_energy_prediction(
+        baseline_energy_kwh=200,
+        predicted_energy_kwh=180,
+        actual_energy_kwh=185,
+    )
+
+    assert result["baseline_energy_kwh"] == 200

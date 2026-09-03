@@ -1,6 +1,12 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
+from backend.data_service import (
+    get_buildings,
+    get_latest_reading,
+    get_building_history,
+)
+
 from backend.models import (
     EnergyInput,
     OptimizationResponse,
@@ -81,3 +87,119 @@ def verify_energy(data: VerificationInput):
     )
 
     return result
+
+@app.get("/buildings")
+def list_buildings():
+
+    return {
+        "buildings": get_buildings()
+    }
+
+
+@app.get("/readings/{building}")
+def latest_building_reading(building: str):
+
+    try:
+        return get_latest_reading(building)
+
+    except ValueError as error:
+        return {
+            "error": str(error)
+        }
+
+@app.get("/dashboard/{building}")
+def dashboard_data(building: str):
+
+    try:
+        reading = get_latest_reading(building)
+
+    except ValueError as error:
+        return {
+            "error": str(error)
+        }
+
+    actions = optimize_energy(
+        occupancy_percent=reading["occupancy_percent"],
+        temperature_c=reading["temperature_c"],
+        daylight_level=reading["daylight_level"],
+        current_energy_kwh=reading["current_energy_kwh"],
+        flexible_load_kwh=reading["flexible_load_kwh"],
+        grid_carbon_intensity=reading[
+            "grid_carbon_intensity"
+        ],
+    )
+
+    best_action = actions[0]
+
+    confidence = calculate_confidence(actions)
+
+    return {
+        "building": building,
+        "timestamp": reading["timestamp"],
+
+        "current_conditions": {
+            "occupancy_percent": reading[
+                "occupancy_percent"
+            ],
+            "temperature_c": reading[
+                "temperature_c"
+            ],
+            "daylight_level": reading[
+                "daylight_level"
+            ],
+            "current_energy_kwh": reading[
+                "current_energy_kwh"
+            ],
+            "flexible_load_kwh": reading[
+                "flexible_load_kwh"
+            ],
+            "grid_carbon_intensity": reading[
+                "grid_carbon_intensity"
+            ],
+        },
+
+        "recommendation": {
+            "action": best_action["action"],
+            "confidence": confidence,
+            "energy_saving_kwh": best_action[
+                "energy_saving_kwh"
+            ],
+            "energy_reduction_percent": best_action[
+                "energy_reduction_percent"
+            ],
+            "cost_saving_inr": best_action[
+                "cost_saving_inr"
+            ],
+            "carbon_reduction_kg": best_action[
+                "carbon_reduction_kg"
+            ],
+            "comfort_impact": best_action[
+                "comfort_impact"
+            ],
+            "reason": best_action["reason"],
+        },
+
+        "actions": actions,
+    }
+
+@app.get("/history/{building}")
+def building_history(
+    building: str,
+    limit: int = 24,
+):
+
+    try:
+        history = get_building_history(
+            building,
+            limit,
+        )
+
+        return {
+            "building": building,
+            "history": history,
+        }
+
+    except ValueError as error:
+        return {
+            "error": str(error)
+        }

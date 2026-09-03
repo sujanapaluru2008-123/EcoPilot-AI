@@ -1,4 +1,3 @@
-
 import { useEffect, useState } from "react";
 
 import {
@@ -22,7 +21,7 @@ import {
 } from "./services/api";
 
 
-function App() {  
+function App() {
   // ============================================================
   // STATE
   // ============================================================
@@ -46,29 +45,21 @@ function App() {
   // ============================================================
 
   useEffect(() => {
-
     async function loadBuildings() {
-
       try {
-
         const data = await getBuildings();
 
         setBuildings(data.buildings);
-
       } catch (err) {
-
         console.error(err);
 
         setError(
           "Unable to load campus buildings."
         );
-
       }
-
     }
 
     loadBuildings();
-
   }, []);
 
 
@@ -77,15 +68,12 @@ function App() {
   // ============================================================
 
   useEffect(() => {
-
     async function loadBuildingData() {
-
       if (!selectedBuilding) {
         return;
       }
 
       try {
-
         setLoading(true);
 
         setError("");
@@ -99,25 +87,18 @@ function App() {
         setDashboard(dashboardData);
 
         setHistory(historyData.history);
-
       } catch (err) {
-
         console.error(err);
 
         setError(
           "Unable to load building data."
         );
-
       } finally {
-
         setLoading(false);
-
       }
-
     }
 
     loadBuildingData();
-
   }, [selectedBuilding]);
 
 
@@ -126,7 +107,6 @@ function App() {
   // ============================================================
 
   if (loading && !dashboard) {
-
     return (
       <div className="min-h-screen bg-[#f4f8f5]">
 
@@ -159,7 +139,6 @@ function App() {
 
       </div>
     );
-
   }
 
 
@@ -168,7 +147,6 @@ function App() {
   // ============================================================
 
   if (error && !dashboard) {
-
     return (
       <div className="min-h-screen bg-[#f4f8f5]">
 
@@ -192,7 +170,6 @@ function App() {
 
       </div>
     );
-
   }
 
 
@@ -207,12 +184,18 @@ function App() {
     dashboard?.recommendation;
 
 
-  // Current energy
+  // ============================================================
+  // ENERGY
+  // ============================================================
+
   const energy =
     conditions?.current_energy_kwh ?? 0;
 
 
-  // Carbon calculation
+  // ============================================================
+  // CARBON
+  // ============================================================
+
   const carbon =
     conditions
       ? (
@@ -222,13 +205,19 @@ function App() {
       : 0;
 
 
-  // Estimated cost
+  // ============================================================
+  // ESTIMATED COST
   // Prototype tariff = ₹8/kWh
+  // ============================================================
+
   const cost =
     energy * 8;
 
 
-  // Occupancy
+  // ============================================================
+  // OCCUPANCY
+  // ============================================================
+
   const occupancy =
     conditions?.occupancy_percent ?? 0;
 
@@ -238,7 +227,6 @@ function App() {
   // ============================================================
 
   return (
-
     <div className="min-h-screen bg-[#f4f8f5]">
 
       {/* ======================================================
@@ -282,11 +270,9 @@ function App() {
 
           <div className="flex items-center gap-3">
 
-
             <div className="flex items-center gap-2 rounded-xl border border-slate-200 bg-white px-4 py-2.5 shadow-sm">
 
               <span className="h-2 w-2 rounded-full bg-emerald-500" />
-
 
               <select
                 value={selectedBuilding}
@@ -297,20 +283,20 @@ function App() {
               >
 
                 {buildings.map((building) => (
-
                   <option
                     key={building}
                     value={building}
                   >
                     {building}
                   </option>
-
                 ))}
 
               </select>
 
             </div>
 
+
+            {/* Live status */}
 
             <div className="flex items-center gap-2 rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-xs font-medium text-slate-500 shadow-sm">
 
@@ -332,13 +318,11 @@ function App() {
         ==================================================== */}
 
         {error && (
-
           <div className="mt-4 rounded-xl border border-red-100 bg-red-50 px-4 py-3 text-sm text-red-600">
 
             {error}
 
           </div>
-
         )}
 
 
@@ -348,7 +332,6 @@ function App() {
 
         <section className="mt-8 grid grid-cols-4 gap-5">
 
-
           <MetricCard
             icon={Zap}
             label="Energy consumption"
@@ -356,7 +339,6 @@ function App() {
             unit="kWh"
             change="Live"
           />
-
 
           <MetricCard
             icon={Leaf}
@@ -366,7 +348,6 @@ function App() {
             change="Live"
           />
 
-
           <MetricCard
             icon={IndianRupee}
             label="Estimated cost"
@@ -374,7 +355,6 @@ function App() {
             unit="INR"
             change="Live"
           />
-
 
           <MetricCard
             icon={Users}
@@ -385,17 +365,18 @@ function App() {
             positive={false}
           />
 
-
         </section>
 
 
         {/* ====================================================
-            MAIN RECOMMENDATION
+            REAL OPTIMIZATION RECOMMENDATION
         ==================================================== */}
 
         <section className="mt-6">
 
-          <RecommendationCard />
+          <RecommendationCard
+            recommendation={recommendation}
+          />
 
         </section>
 
@@ -421,7 +402,6 @@ function App() {
 
           <div className="flex items-center gap-3">
 
-
             <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-white">
 
               <Leaf
@@ -431,25 +411,18 @@ function App() {
 
             </div>
 
-
             <div>
 
               <p className="text-sm font-bold text-emerald-900">
-
                 EcoPilot is continuously evaluating energy decisions
-
               </p>
 
-
               <p className="mt-0.5 text-xs text-emerald-700/70">
-
                 Recommendations consider occupancy, weather,
                 daylight, energy usage and grid carbon intensity.
-
               </p>
 
             </div>
-
 
           </div>
 
@@ -459,7 +432,6 @@ function App() {
       </main>
 
     </div>
-
   );
 }
 
